@@ -1,7 +1,7 @@
 #pragma once
 
-#include <jjson/type.h>
-#include <jjson/Tokenizer.h>
+#include <lib/jjson/type.h>
+#include <lib/jjson/Tokenizer.h>
 
 #include <vector>
 #include <string>
@@ -115,15 +115,15 @@ public:
 		return _error;
 	}
 
-	void dump() const {
-		printf("<SaxParser>\n");
-		printf("\t Token : %c '%.*s' %zu \n", char(_tkz.token_type()), int(_tkz.token_data_len()), _tkz.token_data(), _tkz.token_data_len());
-		printf("\t Chars : read=%zu left=%zu\n", _tkz.chars_tokenized(), _tkz.chars_left());
-		printf("\t Stack : ");
+	void dump(FILE* out) const {
+		fprintf(out, "<SaxParser>\n");
+		fprintf(out, "\t Token : %c '%.*s' %zu \n", char(_tkz.token_type()), int(_tkz.token_data_len()), _tkz.token_data(), _tkz.token_data_len());
+		fprintf(out, "\t Chars : read=%zu left=%zu\n", _tkz.chars_tokenized(), _tkz.chars_left());
+		fprintf(out, "\t Stack : ");
 		for(const auto item : _stack) {
-			printf("%s, ", state_name(item));
+			fprintf(out, "%s, ", state_name(item));
 		}
-		printf("\n");
+		fprintf(out, "\n");
 	}
 
 private:

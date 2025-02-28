@@ -1,6 +1,6 @@
 #pragma once
 
-#include <jjson/type.h>
+#include <lib/jjson/type.h>
 #include <endian.h>
 
 namespace jjson {
@@ -333,33 +333,33 @@ public:
 
 	~Tokenizer() noexcept = default;
 
-	inline TokenType token_type() const noexcept {
+	TokenType token_type() const noexcept {
 		return _token_type;
 	}
 
-	inline const char* token_data() const noexcept {
+	const char* token_data() const noexcept {
 		return reinterpret_cast<const char*>(_str);
 	}
 
-	inline std::string_view token_data_view() const noexcept {
+	std::string_view token_data_view() const noexcept {
 		return {token_data(), _token_len};
 	}
 
-	inline size_t token_data_len() const noexcept {
+	size_t token_data_len() const noexcept {
 		return _token_len;
 	}
 
 	/**
 	* @return How many characters has been tokenized already.
 	*/
-	inline size_t chars_tokenized() const noexcept {
+	size_t chars_tokenized() const noexcept {
 		return _str_len - _chars_left;
 	}
 
 	/**
 	 * @return How many characters has not been tokenized yet.
 	 */
-	inline size_t chars_left() const noexcept {
+	size_t chars_left() const noexcept {
 		return _chars_left;
 	}
 
@@ -413,7 +413,7 @@ private:
 		}
 	}
 
-	inline size_t number_len() const noexcept {
+	size_t number_len() const noexcept {
 		size_t result_offset = 1u;
 		while(result_offset < _chars_left) {
 			switch(_str[result_offset]) {
@@ -429,18 +429,22 @@ private:
 		return result_offset;
 	}
 
-	inline size_t string_len() const noexcept {
-		const uint8_t* head = _str + 1u;
+	size_t string_len() noexcept {
+		const char* start = reinterpret_cast<const char*>(_str);
+		const char* head = start + 1u;
 		size_t result = 0;
-		head = static_cast<const uint8_t*>(memchr(head, '\"', _str_end - head));
-		if(head) {
+		while((head = strchr(head, '\"')) != nullptr) {
+			if(*head == '\"' && head[-1] != '\\') {
+				head++;
+				result = head - start;
+				break;
+			}
 			head++;
-			result = head - _str;
 		}
 		return result;
 	}
 
-	inline size_t null_len() const noexcept {
+	size_t null_len() const noexcept {
 		static constexpr size_t TOKEN_LEN = 4u;
 		static constexpr uint8_t TOKEN_CHARS [] = {'n', 'u', 'l', 'l'};
 		static constexpr uint32_t TOKEN = build32u(TOKEN_CHARS);
@@ -449,7 +453,7 @@ private:
 		return result ? TOKEN_LEN : 0;
 	}
 
-	inline size_t true_len() const noexcept {
+	size_t true_len() const noexcept {
 		static constexpr size_t TOKEN_LEN = 4u;
 		static constexpr uint8_t TOKEN_CHARS [] = {'t', 'r', 'u', 'e'};
 		static constexpr uint32_t TOKEN = build32u(TOKEN_CHARS);
@@ -458,7 +462,7 @@ private:
 		return result ? TOKEN_LEN : 0;
 	}
 
-	inline size_t false_len() const noexcept {
+	size_t false_len() const noexcept {
 		static constexpr size_t TOKEN_LEN = 5u;
 		static constexpr uint8_t TOKEN_CHARS [] = {'a', 'l', 's', 'e'};
 		static constexpr uint32_t TOKEN = build32u(TOKEN_CHARS);
@@ -467,22 +471,22 @@ private:
 		return result ? TOKEN_LEN : 0;
 	}
 
-	inline bool available(size_t chars) const noexcept {
+	bool available(size_t chars) const noexcept {
 		return _chars_left >= chars;
 	}
 
-	inline void set_token(const TokenType type, const size_t str_len) noexcept {
+	void set_token(const TokenType type, const size_t str_len) noexcept {
 		_token_type = type;
 		_token_len = str_len;
 	}
 
-	inline void skip_token() noexcept {
+	void skip_token() noexcept {
 		_str += _token_len;
 		_chars_left -= _token_len;
 		_token_len = 0;
 	}
 
-	inline void skip_ws() noexcept {
+	void skip_ws() noexcept {
 		while(_chars_left && _char_class_map[*_str] == CharClass::Space) {
 			_str++;
 			_chars_left--;

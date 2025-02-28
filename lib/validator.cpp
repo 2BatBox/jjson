@@ -1,6 +1,6 @@
 #include <cstdio>
 
-#include <jjson/jjson.h>
+#include <lib/jjson/jjson.h>
 #include <cassert>
 
 using namespace jjson;
@@ -35,7 +35,7 @@ bool test_dom_string_builder(const std::string& input) noexcept {
 	result = parser.parse(input);
 	if (result) {
 		const auto root = dom.root();
-		const std::string& output = DomStringBuilder::to_json_string(root);
+		const std::string& output = DomJsonStringBuilder::to_json_string(root);
 		result = (strcmp(input.data(), output.data()) == 0);
 		if (not result) {
 			fprintf(stderr, "DomStringBuilder test has failed : the input and output strings are not the same!\n");
@@ -43,10 +43,15 @@ bool test_dom_string_builder(const std::string& input) noexcept {
 			fprintf(stderr, "output : '%s'\n", output.c_str());
 		}
 	} else {
-		const std::string& output = parser.error();
-		fprintf(stderr, "DomStringBuilder test has failed during the parsing!\n");
-		fprintf(stderr, "input  : '%s'\n", input.c_str());
-		fprintf(stderr, "error  : '%s'\n", output.c_str());
+		if(dom.is_allocation_reject()) {
+			fprintf(stderr, "DomStringBuilder test has failed, the node pool is empty!\n");
+		} else {
+			const std::string& output = parser.error();
+			fprintf(stderr, "DomStringBuilder test has failed during the parsing!\n");
+			fprintf(stderr, "input  : '%s'\n", input.c_str());
+			fprintf(stderr, "error  : '%s'\n", output.c_str());
+		}
+
 	}
 	return result;
 }

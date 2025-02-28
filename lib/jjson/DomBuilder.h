@@ -1,7 +1,7 @@
 #pragma once
 
-#include <jjson/type.h>
-#include <jjson/SaxParser.h>
+#include <lib/jjson/type.h>
+#include <lib/jjson/SaxParser.h>
 
 #include <cstdio>
 #include <string>
@@ -19,7 +19,7 @@ class DomBuilder {
 	size_t _used_value;
 	std::vector<Node*> _stack;
 	Node* _root;
-	bool _empty_pool;
+	bool _is_allocation_reject;
 
 public:
 
@@ -34,7 +34,7 @@ public:
 		_value_pool(_allocator.allocate(value_pool_capacity)),
 		_used_value(0),
 		_root(nullptr),
-		_empty_pool(false) {}
+		_is_allocation_reject(false) {}
 
 	~DomBuilder() noexcept {
 		_allocator.deallocate(_value_pool, _capacity);
@@ -45,12 +45,16 @@ public:
 		return _root;
 	}
 
+	bool is_allocation_reject() const noexcept {
+		return _is_allocation_reject;
+	}
+
 	void reset() noexcept {
 		_used_value = 0;
 		_stack.resize(0);
 		_stack.push_back(nullptr);
 		_root = nullptr;
-		_empty_pool = false;
+		_is_allocation_reject = false;
 	}
 
 	void document_start() noexcept {
@@ -61,7 +65,7 @@ public:
 		if(_used_value > 0) {
 			_root = _value_pool;
 		}
-		return not _empty_pool;
+		return not _is_allocation_reject;
 	}
 
 	void document_failure() noexcept {
@@ -101,7 +105,7 @@ public:
 				break;
 
 			case SaxParserEvent::Bool :
-				append_next_value((data[0] == 't' ? NodeType::True : NodeType::False), data);
+				append_next_value(NodeType::Bool, data);
 				break;
 
 			case SaxParserEvent::ObjectItemStart :
@@ -126,7 +130,7 @@ private:
 		if(_used_value < _capacity) {
 			push_next(alloc_value(type, data));
 		} else {
-			_empty_pool = true;
+			_is_allocation_reject = true;
 		}
 	}
 

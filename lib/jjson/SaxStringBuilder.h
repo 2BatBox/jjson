@@ -1,7 +1,7 @@
 #pragma once
 
-#include <jjson/type.h>
-#include <jjson/SaxParser.h>
+#include <lib/jjson/type.h>
+#include <lib/jjson/SaxParser.h>
 
 #include <string>
 

@@ -1,1 +1,1 @@
-{"":"","":"value","name":"","name":"value","[{,:}]":"[{,:}]","NO ASCII STRING":"йцукенгшщзхъ","array":["hello","world","","","[{,:}]","    ","[null,false,true]"]}
+{"":"","":"value","name":"","name":"value","[{,:}]":"[{,:}]","NO ASCII STRING":"йцукенгшщзхъ","with escape":"hello 'world', \"hello world\"","array":["hello","world","","","[{,:}]","    ","[null,false,true]"]}

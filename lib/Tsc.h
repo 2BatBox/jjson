@@ -16,7 +16,7 @@ public:
 	 *
 	 * @return TSC counter value.
 	 */
-	static inline Counter read() noexcept {
+	static Counter read() noexcept {
 #if defined(__x86_64__) || defined(__amd64__)
 		Counter low;
 		Counter high;

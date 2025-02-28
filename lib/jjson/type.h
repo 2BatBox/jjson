@@ -12,8 +12,7 @@ enum class NodeType : char {
 	Array,
 	String,
 	Number,
-	True,
-	False,
+	Bool,
 	Null,
 	Key,
 	Unknown
