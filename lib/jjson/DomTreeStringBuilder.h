@@ -9,35 +9,11 @@ namespace jjson {
 
 struct DomTreeStringBuilder {
 
-	static void dump(FILE* out, const jjson::Node* root) noexcept {
+	static void dump(FILE* out, const jjson::Node* root) {
 		dump(out, root, 0);
 	}
 
-private:
-
-	static void dump(FILE* out, const jjson::Node* root, unsigned level) noexcept {
-		if(root) {
-			fprintf(out, "%*s [%u] ", int(level * 4), "", level);
-			fprintf(out, " %s ", to_string(root->type));
-
-			switch(root->type) {
-				case NodeType::Key :
-				case NodeType::String :
-				case NodeType::Number :
-					fprintf(out, " '%.*s'", int(root->data.length()), root->data.begin());
-				break;
-
-				default:
-					break;
-			}
-
-			fprintf(out, "\n");
-			dump(out, root->value, level + 1u);
-			dump(out, root->next, level);
-		}
-	}
-
-	static const char* to_string(const jjson::NodeType& value) noexcept {
+	static const char* to_string(const jjson::NodeType& value) {
 		switch(value) {
 			case NodeType::Object :
 				return "object";
@@ -58,6 +34,30 @@ private:
 
 			default :
 				return "UNKNOWN";
+		}
+	}
+
+private:
+
+	static void dump(FILE* out, const jjson::Node* root, unsigned level) {
+		if(root) {
+			fprintf(out, "%.*s [%u] ", int(level * 4), "", level);
+			fprintf(out, " %s ", to_string(root->type));
+
+			switch(root->type) {
+				case NodeType::Key :
+				case NodeType::String :
+				case NodeType::Number :
+					fprintf(out, " '%.*s'", int(root->data.length()), root->data.begin());
+				break;
+
+				default:
+					break;
+			}
+
+			fprintf(out, "\n");
+			dump(out, root->value, level + 1u);
+			dump(out, root->next, level);
 		}
 	}
 
